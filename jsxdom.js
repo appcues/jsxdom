@@ -13,11 +13,34 @@ function processChildren(dom, children) {
   }
 }
 
+// Provide a means for adding new tags to be handled by JSXDOM.
+function registerTag(tag, ns) {
+  JSXDOM[tag] = function(attributes, children) {
+    var dom;
+    if (ns === undefined || ns === null) {
+      dom = document.createElement(tag);
+    } else {
+      dom = document.createElementNS(ns, tag);
+    }
+    for (var name in attributes) {
+      dom.setAttribute(name, attributes[name]);
+    }
+    processChildren(dom, children);
+    return dom;
+  }
+}
+
+function registerTags(tags, ns) {
+  tags.forEach(function(tag) {
+    registerTag(tag, ns);
+  });
+}
+
 var JSXDOM = function(type, attributes, children) {
   if (arguments.length === 2 && (typeof attributes === 'string' || Array.isArray(attributes))) {
     children = [ attributes ]
     attributes = {}
-  }  
+  }
   if (arguments.length > 2) {
     children = Array.prototype.slice.call(arguments, 2);
   }
@@ -32,16 +55,9 @@ var JSXDOM = function(type, attributes, children) {
   return ret;
 };
 
-tags.forEach(function(tag) {
-  JSXDOM[tag] = function(attributes, children) {
-    var dom = document.createElement(tag);
-    for (var name in attributes) {
-      dom.setAttribute(name, attributes[name]);
-    }
-    processChildren(dom, children);
-    return dom;
-  }
-});
+// Register all default tags.
+registerTags(tags);
 
+JSXDOM.registerTags = registerTags;
 global.JSXDOM = JSXDOM;
 })(this);
