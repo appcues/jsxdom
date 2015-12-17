@@ -55,9 +55,9 @@ var JSXDOM = function(type, attributes, children) {
   return ret;
 };
 
-// Register all default tags.
-registerTags(tags);
-
 JSXDOM.registerTags = registerTags;
 global.JSXDOM = JSXDOM;
+
+// Register all default tags.
+registerTags(tags);
 })(this);
